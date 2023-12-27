@@ -68,17 +68,13 @@ namespace Gambling
             {
                 if (!(__instance is FlowermanAI) && !(__instance is CentipedeAI)) return true;
                 
-                GamblingPlugin.Instance.Log.LogInfo("called x-x");
                 playerScript.TryGetComponent(out GamblingController controller);
 
                 if (controller is not null)
                 {
-                    GamblingPlugin.Instance.Log.LogInfo("called y-y");
                     if (controller.domainActive && controller.domainUser == playerScript.actualClientId)
                     {
-                        GamblingPlugin.Instance.Log.LogInfo("called z-z");
-                        __result = false;
-                        return false;
+                        return __result = false;
                     }
                 }
 
