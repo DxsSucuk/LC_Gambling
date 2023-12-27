@@ -22,7 +22,7 @@ namespace Gambling
         public static GamblingPlugin Instance;
 
         public LoadedAssetBundle Bundle;
-        public bool shouldDebug = true;
+        public bool shouldDebug;
         
         public AudioClip gambit;
 
