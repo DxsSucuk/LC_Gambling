@@ -4,6 +4,9 @@ If you fail you will receive damage, you can retry the instant your try failed O
 
 # Versions
 
+## 1.0.3
+* Forgot to disable debug mode upsie!
+
 ## 1.0.2
 * Fixed Snare Flea not stopping to hug you!
 * Fixed Flowerman keeping you stuck at a position.
