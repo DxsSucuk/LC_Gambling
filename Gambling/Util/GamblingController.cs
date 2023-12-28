@@ -15,7 +15,9 @@ public class GamblingController : MonoBehaviour
 {
     private PlayerControllerB _playerControllerB;
     [FormerlySerializedAs("_domainUser")] public ulong domainUser = 99999999L;
-    [FormerlySerializedAs("_domainActive")] public bool domainActive;
+
+    [FormerlySerializedAs("_domainActive")]
+    public bool domainActive;
 
     private void Awake()
     {
@@ -24,7 +26,7 @@ public class GamblingController : MonoBehaviour
         LC_API.GameInterfaceAPI.Events.Handlers.Player.Dying += SillyBob;
         GameState.WentIntoOrbit += ResetGambitOnOrbit;
     }
-    
+
     void OnDestroy()
     {
         LC_API.GameInterfaceAPI.Events.Handlers.Player.Hurting -= SillyBilly;
@@ -54,39 +56,45 @@ public class GamblingController : MonoBehaviour
     {
         return causeOfDeath == CauseOfDeath.Abandoned;
     }
-    
+
     private void Update()
     {
-        if (!_playerControllerB.IsOwner ||!_playerControllerB.isPlayerControlled) return;
-        
+        if (!_playerControllerB.IsOwner || !_playerControllerB.isPlayerControlled) return;
+
         if (domainActive)
         {
             _playerControllerB.sprintMeter = 100f;
         }
-        
-        if (GamblingPlugin.InputActionsInstance.ExpansionKey.triggered && !domainActive && GameState.ShipState == ShipState.OnMoon)
+
+        if (GamblingPlugin.InputActionsInstance.ExpansionKey.triggered && !domainActive &&
+            GameState.ShipState == ShipState.OnMoon)
         {
             GamblingPlugin.Instance.Log.LogInfo(domainActive + " - " + domainUser);
             if (Random.Range(0f, 1f) >= 0.85 || GamblingPlugin.Instance.shouldDebug)
             {
                 if (_playerControllerB.isPlayerDead) return;
-                
+
                 domainActive = true;
-                
+
                 LC_API.GameInterfaceAPI.GameTips.ShowTip("IDLE DEATH GAMBLE: Start", "JACKPOT BABY!!!!!!!!!");
-                
+
                 Player player = Player.Get(_playerControllerB);
                 GamblingPlugin.Instance.Log.LogInfo(player.ClientId);
-                
+
                 domainUser = player.ClientId;
-                
+
                 player.SprintMeter = float.PositiveInfinity;
-                
-                AudioSource source =
-                    gameObject.AddComponent<AudioSource>();
-                source.clip = GamblingPlugin.Instance.gambit;
-                source.Play();
-                
+                _playerControllerB.HealServerRpc();
+
+                if (GamblingPlugin.Instance.gambit is not null)
+                {
+                    PlayAudio();
+                }
+                else
+                {
+                    LC_API.GameInterfaceAPI.GameTips.ShowTip("IDLE DEATH GAMBLE: Info", "NO SOUND BABY!");
+                }
+
                 Invoke(nameof(DisableImmortality), 251f);
 
                 LC_API.GameInterfaceAPI.Features.Item.CreateAndGiveItem("shovel", player, false);
@@ -110,7 +118,7 @@ public class GamblingController : MonoBehaviour
     {
         Player.Get(_playerControllerB).Hurt(50);
     }
-    
+
     [ServerRpc(RequireOwnership = true)]
     public void PlayAudio()
     {
@@ -122,6 +130,13 @@ public class GamblingController : MonoBehaviour
         Invoke(nameof(ResetGambit), 251f);
     }
 
+    public void DisableMyMomJOOO()
+    {
+        DisableImmortality();
+        domainActive = false;
+        domainUser = 99999999L;
+    }
+    
     [ServerRpc(RequireOwnership = true)]
     public void DisableImmortality()
     {
@@ -136,18 +151,17 @@ public class GamblingController : MonoBehaviour
 
     public void ResetGambitOnOrbit()
     {
-        CancelInvoke(nameof(DisableImmortality));
-        DisableImmortality();
-        ResetGambit();
+        CancelInvoke(nameof(DisableMyMomJOOO));
+        DisableMyMomJOOO();
     }
-    
+
     public void ResetGambit()
     {
         if (!domainActive) return;
-        
+
         if (GameState.ShipState == ShipState.OnMoon && !_playerControllerB.isPlayerDead)
             SendNotification();
-        
+
         domainActive = false;
         domainUser = 99999999L;
     }
