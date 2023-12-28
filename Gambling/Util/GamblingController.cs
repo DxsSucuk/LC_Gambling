@@ -87,31 +87,57 @@ public class GamblingController : MonoBehaviour
                 source.clip = GamblingPlugin.Instance.gambit;
                 source.Play();
                 
-                Invoke(nameof(ResetGambit), 251f);
+                Invoke(nameof(DisableImmortality), 251f);
 
                 LC_API.GameInterfaceAPI.Features.Item.CreateAndGiveItem("shovel", player, false);
             }
             else
             {
-                Player.Get(_playerControllerB).Hurt(50);
+                Hurt();
             }
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = true)]
+    public void EnableImmortality()
+    {
+        domainActive = true;
+        domainUser = Player.Get(_playerControllerB).ClientId;
+    }
+
+    [ServerRpc(RequireOwnership = true)]
+    public void Hurt()
+    {
+        Player.Get(_playerControllerB).Hurt(50);
+    }
+    
+    [ServerRpc(RequireOwnership = true)]
     public void PlayAudio()
     {
         AudioSource source =
             gameObject.AddComponent<AudioSource>();
         source.clip = GamblingPlugin.Instance.gambit;
         source.Play();
-                
+
         Invoke(nameof(ResetGambit), 251f);
+    }
+
+    [ServerRpc(RequireOwnership = true)]
+    public void DisableImmortality()
+    {
+        ResetGambit();
+    }
+
+    [ClientRpc]
+    public void SendNotification()
+    {
+        GameTips.ShowTip("IDLE DEATH GAMBLE: End", "Maybe round 2?");
     }
 
     public void ResetGambitOnOrbit()
     {
-        CancelInvoke(nameof(ResetGambit));
+        CancelInvoke(nameof(DisableImmortality));
+        DisableImmortality();
         ResetGambit();
     }
     
@@ -119,7 +145,9 @@ public class GamblingController : MonoBehaviour
     {
         if (!domainActive) return;
         
-        LC_API.GameInterfaceAPI.GameTips.ShowTip("IDLE DEATH GAMBLE: End", "Maybe round 2?");
+        if (GameState.ShipState == ShipState.OnMoon && !_playerControllerB.isPlayerDead)
+            SendNotification();
+        
         domainActive = false;
         domainUser = 99999999L;
     }
