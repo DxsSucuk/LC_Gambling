@@ -64,7 +64,7 @@ public class GamblingController : MonoBehaviour
             _playerControllerB.sprintMeter = 100f;
         }
         
-        if (GamblingPlugin.InputActionsInstance.ExpansionKey.triggered && (!domainActive) && GameState.ShipState == ShipState.OnMoon)
+        if (GamblingPlugin.InputActionsInstance.ExpansionKey.triggered && !domainActive && GameState.ShipState == ShipState.OnMoon)
         {
             GamblingPlugin.Instance.Log.LogInfo(domainActive + " - " + domainUser);
             if (Random.Range(0f, 1f) >= 0.85 || GamblingPlugin.Instance.shouldDebug)

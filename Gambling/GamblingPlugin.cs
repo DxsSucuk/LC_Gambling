@@ -66,7 +66,7 @@ namespace Gambling
             [HarmonyPrefix]
             public static bool KillPatch(EnemyAI __instance, ref bool __result, PlayerControllerB playerScript)
             {
-                if (!(__instance is FlowermanAI) && !(__instance is CentipedeAI)) return true;
+                if (!(__instance is FlowermanAI) && !(__instance is CentipedeAI) && !(__instance is MaskedPlayerEnemy)) return true;
                 
                 playerScript.TryGetComponent(out GamblingController controller);
 
