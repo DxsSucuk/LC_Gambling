@@ -88,6 +88,7 @@ public class GamblingController : MonoBehaviour
 
                 if (GamblingPlugin.Instance.gambit is not null)
                 {
+                    GamblingPlugin.Instance.Log.LogInfo("Fuck dion.");
                     PlayAudio();
                 }
                 else
